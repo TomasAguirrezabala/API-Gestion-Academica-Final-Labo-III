@@ -10,20 +10,17 @@ public class Materia {
     private Integer cuatrimestre;
     private Profesor profesor;
     private List<Long> correlatividades = new ArrayList<>();
-    
-    // Default constructor
+
     public Materia() {
     }
-    
-    // Parameterized constructor
+
     public Materia(Long id, String nombre, Integer anio, Integer cuatrimestre) {
         this.id = id;
         this.nombre = nombre;
         this.anio = anio;
         this.cuatrimestre = cuatrimestre;
     }
-    
-    // Full constructor
+
     public Materia(Long id, String nombre, Integer anio, Integer cuatrimestre, Profesor profesor) {
         this.id = id;
         this.nombre = nombre;

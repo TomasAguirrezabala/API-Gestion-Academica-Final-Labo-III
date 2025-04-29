@@ -22,8 +22,7 @@ public class MateriaDto {
         this.profesorId = profesorId;
         this.correlatividades = correlatividades;
     }
-    
-    // Getters and setters
+
     public Long getId() {
         return id;
     }

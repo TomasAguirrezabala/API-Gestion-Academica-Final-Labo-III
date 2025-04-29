@@ -21,8 +21,7 @@ public class ProfesorDto {
         this.titulo = titulo;
         this.materiasIds = materiasIds;
     }
-    
-    // Getters and setters
+
     public Long getId() {
         return id;
     }

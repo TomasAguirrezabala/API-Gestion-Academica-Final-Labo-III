@@ -8,12 +8,10 @@ public class Carrera {
     private String nombre;
     private Integer duracionAnios;
     private List<Materia> materias = new ArrayList<>();
-    
-    // Default constructor
+
     public Carrera() {
     }
-    
-    // Parameterized constructor
+
     public Carrera(Long id, String nombre, Integer duracionAnios) {
         this.id = id;
         this.nombre = nombre;

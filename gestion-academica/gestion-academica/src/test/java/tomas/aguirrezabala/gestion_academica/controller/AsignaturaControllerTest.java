@@ -66,7 +66,7 @@ public class AsignaturaControllerTest {
     
     @Test
     void listarTodas_debeRetornarListaDeAsignaturas_cuandoHayAsignaturas() throws Exception {
-        // Preparación
+
         Carrera carrera = new Carrera(1L, "Ingeniería Informática", 5);
         
         Alumno alumno = new Alumno();
@@ -87,11 +87,9 @@ public class AsignaturaControllerTest {
         Asignatura asignatura2 = new Asignatura(2L, materia2, alumno, EstadoAsignatura.APROBADO, 8.5);
         
         List<Asignatura> asignaturas = Arrays.asList(asignatura1, asignatura2);
-        
-        // Mock del servicio
+
         when(asignaturaService.buscarTodas()).thenReturn(asignaturas);
-        
-        // Ejecución y verificación
+
         mockMvc.perform(get("/asignatura")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -104,29 +102,26 @@ public class AsignaturaControllerTest {
                 .andExpect(jsonPath("$[1].estado", is("APROBADO")))
                 .andExpect(jsonPath("$[1].nota", is(8.5)))
                 .andExpect(jsonPath("$[1].materia.nombre", is("Base de Datos")));
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).buscarTodas();
     }
     
     @Test
     void listarTodas_debeRetornarListaVacia_cuandoNoHayAsignaturas() throws Exception {
-        // Mock del servicio
+
         when(asignaturaService.buscarTodas()).thenReturn(Collections.emptyList());
-        
-        // Ejecución y verificación
+
         mockMvc.perform(get("/asignatura")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).buscarTodas();
     }
     
     @Test
     void buscarPorId_debeRetornarAsignatura_cuandoExiste() throws Exception {
-        // Preparación
+
         Long idBuscado = 1L;
         
         Carrera carrera = new Carrera(1L, "Ingeniería Informática", 5);
@@ -142,11 +137,9 @@ public class AsignaturaControllerTest {
         materia.setNombre("Programación I");
         
         Asignatura asignatura = new Asignatura(idBuscado, materia, alumno, EstadoAsignatura.CURSANDO);
-        
-        // Mock del servicio
+
         when(asignaturaService.buscarPorId(idBuscado)).thenReturn(Optional.of(asignatura));
-        
-        // Ejecución y verificación
+
         mockMvc.perform(get("/asignatura/{id}", idBuscado)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -154,34 +147,30 @@ public class AsignaturaControllerTest {
                 .andExpect(jsonPath("$.estado", is("CURSANDO")))
                 .andExpect(jsonPath("$.materia.id", is(1)))
                 .andExpect(jsonPath("$.alumno.id", is(1)));
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).buscarPorId(idBuscado);
     }
     
     @Test
     void buscarPorId_debeLanzarExcepcion_cuandoNoExiste() throws Exception {
-        // Preparación
+
         Long idInexistente = 999L;
-        
-        // Mock del servicio
+
         when(asignaturaService.buscarPorId(idInexistente)).thenReturn(Optional.empty());
-        
-        // Ejecución y verificación
+
         mockMvc.perform(get("/asignatura/{id}", idInexistente)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(404)))
                 .andExpect(jsonPath("$.error", is("Not Found")))
                 .andExpect(jsonPath("$.mensaje").exists());
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).buscarPorId(idInexistente);
     }
     
     @Test
     void crear_debeRetornarAsignaturaCreada_cuandoDatosValidos() throws Exception {
-        // Preparación
+
         Carrera carrera = new Carrera(1L, "Ingeniería Informática", 5);
         
         Alumno alumno = new Alumno();
@@ -199,12 +188,10 @@ public class AsignaturaControllerTest {
         asignaturaDto.setMateriaId(1L);
         asignaturaDto.setEstado(EstadoAsignatura.CURSANDO);
         
-        Asignatura asignaturaCreada = new Asignatura(1L, materia, alumno, EstadoAsignatura.CURSANDO);
-        
-        // Mock del servicio
+        Asignatura asignaturaCreada = new Asignatura(1L, materia, alumno, EstadoAsignatura.CURSANDO); 
+
         when(asignaturaService.guardar(any(AsignaturaDto.class))).thenReturn(asignaturaCreada);
-        
-        // Ejecución y verificación
+
         mockMvc.perform(post("/asignatura")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(asignaturaDto)))
@@ -213,24 +200,21 @@ public class AsignaturaControllerTest {
                 .andExpect(jsonPath("$.estado", is("CURSANDO")))
                 .andExpect(jsonPath("$.materia.nombre", is("Programación I")))
                 .andExpect(jsonPath("$.alumno.nombre", is("Tomas")));
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).guardar(any(AsignaturaDto.class));
     }
     
     @Test
     void crear_debeLanzarExcepcion_cuandoAlumnoNoExiste() throws Exception {
-        // Preparación
+
         AsignaturaDto asignaturaDto = new AsignaturaDto();
-        asignaturaDto.setAlumnoId(999L); // ID de alumno inexistente
+        asignaturaDto.setAlumnoId(999L);
         asignaturaDto.setMateriaId(1L);
         asignaturaDto.setEstado(EstadoAsignatura.CURSANDO);
-        
-        // Mock del servicio - simula un error de alumno no encontrado
+
         when(asignaturaService.guardar(any(AsignaturaDto.class)))
             .thenThrow(new EntidadNoEncontradaException("Alumno", 999L));
-        
-        // Ejecución y verificación
+
         mockMvc.perform(post("/asignatura")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(asignaturaDto)))
@@ -238,24 +222,21 @@ public class AsignaturaControllerTest {
                 .andExpect(jsonPath("$.status", is(404)))
                 .andExpect(jsonPath("$.error", is("Not Found")))
                 .andExpect(jsonPath("$.mensaje").exists());
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).guardar(any(AsignaturaDto.class));
     }
     
     @Test
     void crear_debeLanzarExcepcion_cuandoMateriaNoExiste() throws Exception {
-        // Preparación
+
         AsignaturaDto asignaturaDto = new AsignaturaDto();
         asignaturaDto.setAlumnoId(1L);
-        asignaturaDto.setMateriaId(999L); // ID de materia inexistente
+        asignaturaDto.setMateriaId(999L); 
         asignaturaDto.setEstado(EstadoAsignatura.CURSANDO);
-        
-        // Mock del servicio - simula un error de materia no encontrada
+
         when(asignaturaService.guardar(any(AsignaturaDto.class)))
             .thenThrow(new EntidadNoEncontradaException("Materia", 999L));
-        
-        // Ejecución y verificación
+
         mockMvc.perform(post("/asignatura")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(asignaturaDto)))
@@ -263,24 +244,21 @@ public class AsignaturaControllerTest {
                 .andExpect(jsonPath("$.status", is(404)))
                 .andExpect(jsonPath("$.error", is("Not Found")))
                 .andExpect(jsonPath("$.mensaje").exists());
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).guardar(any(AsignaturaDto.class));
     }
     
     @Test
     void crear_debeLanzarExcepcion_cuandoAsignaturaYaExiste() throws Exception {
-        // Preparación
+
         AsignaturaDto asignaturaDto = new AsignaturaDto();
         asignaturaDto.setAlumnoId(1L);
-        asignaturaDto.setMateriaId(1L); // Combinación alumno-materia ya existe
+        asignaturaDto.setMateriaId(1L);
         asignaturaDto.setEstado(EstadoAsignatura.CURSANDO);
-        
-        // Mock del servicio - simula un error de asignatura duplicada
+
         when(asignaturaService.guardar(any(AsignaturaDto.class)))
             .thenThrow(new EntidadDuplicadaException("Asignatura", "alumno y materia", "Alumno ID: 1, Materia ID: 1"));
-        
-        // Ejecución y verificación
+
         mockMvc.perform(post("/asignatura")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(asignaturaDto)))
@@ -288,14 +266,13 @@ public class AsignaturaControllerTest {
                 .andExpect(jsonPath("$.status", is(409)))
                 .andExpect(jsonPath("$.error", is("Conflict")))
                 .andExpect(jsonPath("$.mensaje").exists());
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).guardar(any(AsignaturaDto.class));
     }
     
     @Test
     void actualizar_debeRetornarAsignaturaActualizada_cuandoDatosValidos() throws Exception {
-        // Preparación
+
         Long idActualizar = 1L;
         
         Carrera carrera = new Carrera(1L, "Ingeniería Informática", 5);
@@ -316,11 +293,9 @@ public class AsignaturaControllerTest {
         asignaturaDto.setEstado(EstadoAsignatura.REGULAR);
         
         Asignatura asignaturaActualizada = new Asignatura(idActualizar, materia, alumno, EstadoAsignatura.REGULAR);
-        
-        // Mock del servicio
+
         when(asignaturaService.guardar(any(AsignaturaDto.class))).thenReturn(asignaturaActualizada);
-        
-        // Ejecución y verificación
+
         mockMvc.perform(put("/asignatura/{id}", idActualizar)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(asignaturaDto)))
@@ -329,26 +304,23 @@ public class AsignaturaControllerTest {
                 .andExpect(jsonPath("$.estado", is("REGULAR")))
                 .andExpect(jsonPath("$.materia.nombre", is("Programación I")))
                 .andExpect(jsonPath("$.alumno.nombre", is("Tomas")));
-        
-        // Verificar que el servicio fue llamado
+  
         verify(asignaturaService, times(1)).guardar(any(AsignaturaDto.class));
     }
     
     @Test
     void actualizar_debeLanzarExcepcion_cuandoAsignaturaNoExiste() throws Exception {
-        // Preparación
+
         Long idInexistente = 999L;
         
         AsignaturaDto asignaturaDto = new AsignaturaDto();
         asignaturaDto.setAlumnoId(1L);
         asignaturaDto.setMateriaId(1L);
         asignaturaDto.setEstado(EstadoAsignatura.REGULAR);
-        
-        // Mock del servicio - simula un error de asignatura no encontrada
+
         when(asignaturaService.guardar(any(AsignaturaDto.class)))
             .thenThrow(new EntidadNoEncontradaException("Asignatura", idInexistente));
-        
-        // Ejecución y verificación
+
         mockMvc.perform(put("/asignatura/{id}", idInexistente)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(asignaturaDto)))
@@ -356,52 +328,45 @@ public class AsignaturaControllerTest {
                 .andExpect(jsonPath("$.status", is(404)))
                 .andExpect(jsonPath("$.error", is("Not Found")))
                 .andExpect(jsonPath("$.mensaje").exists());
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).guardar(any(AsignaturaDto.class));
     }
     
     @Test
     void eliminar_debeRetornarNoContent_cuandoSeEliminaCorrectamente() throws Exception {
-        // Preparación
+
         Long idEliminar = 1L;
-        
-        // Mock del servicio - configurar para que no haga nada (éxito)
+
         doNothing().when(asignaturaService).eliminarPorId(idEliminar);
-        
-        // Ejecución y verificación
+
         mockMvc.perform(delete("/asignatura/{id}", idEliminar)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).eliminarPorId(idEliminar);
     }
     
     @Test
     void eliminar_debeLanzarExcepcion_cuandoAsignaturaNoExiste() throws Exception {
-        // Preparación
+
         Long idInexistente = 999L;
-        
-        // Mock del servicio - simula un error de asignatura no encontrada
+
         doThrow(new EntidadNoEncontradaException("Asignatura", idInexistente))
             .when(asignaturaService).eliminarPorId(idInexistente);
-        
-        // Ejecución y verificación
+
         mockMvc.perform(delete("/asignatura/{id}", idInexistente)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(404)))
                 .andExpect(jsonPath("$.error", is("Not Found")))
                 .andExpect(jsonPath("$.mensaje").exists());
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).eliminarPorId(idInexistente);
     }
     
     @Test
     void actualizarEstado_debeRetornarAsignaturaActualizada_cuandoDatosValidos() throws Exception {
-        // Preparación
+
         Long idAsignatura = 1L;
         EstadoAsignatura nuevoEstado = EstadoAsignatura.APROBADO;
         
@@ -420,12 +385,10 @@ public class AsignaturaControllerTest {
         Asignatura asignatura = new Asignatura(idAsignatura, materia, alumno, EstadoAsignatura.CURSANDO);
         
         Asignatura asignaturaActualizada = new Asignatura(idAsignatura, materia, alumno, EstadoAsignatura.APROBADO, 7.0);
-        
-        // Mock del servicio
+
         when(asignaturaService.buscarPorId(idAsignatura)).thenReturn(Optional.of(asignatura));
         when(asignaturaService.guardar(any(AsignaturaDto.class))).thenReturn(asignaturaActualizada);
-        
-        // Ejecución y verificación
+
         mockMvc.perform(put("/asignatura/{id}/estado", idAsignatura)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(nuevoEstado)))
@@ -433,22 +396,19 @@ public class AsignaturaControllerTest {
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.estado", is("APROBADO")))
                 .andExpect(jsonPath("$.nota", is(7.0)));
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).buscarPorId(idAsignatura);
         verify(asignaturaService, times(1)).guardar(any(AsignaturaDto.class));
     }
     
     @Test
     void actualizarEstado_debeLanzarExcepcion_cuandoAsignaturaNoExiste() throws Exception {
-        // Preparación
+
         Long idInexistente = 999L;
         EstadoAsignatura nuevoEstado = EstadoAsignatura.APROBADO;
-        
-        // Mock del servicio
+
         when(asignaturaService.buscarPorId(idInexistente)).thenReturn(Optional.empty());
-        
-        // Ejecución y verificación
+
         mockMvc.perform(put("/asignatura/{id}/estado", idInexistente)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(nuevoEstado)))
@@ -456,15 +416,14 @@ public class AsignaturaControllerTest {
                 .andExpect(jsonPath("$.status", is(404)))
                 .andExpect(jsonPath("$.error", is("Not Found")))
                 .andExpect(jsonPath("$.mensaje").exists());
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).buscarPorId(idInexistente);
         verify(asignaturaService, times(0)).guardar(any(AsignaturaDto.class));
     }
     
     @Test
     void actualizarNota_debeRetornarAsignaturaActualizada_cuandoDatosValidos() throws Exception {
-        // Preparación
+
         Long idAsignatura = 1L;
         Double nuevaNota = 8.5;
         
@@ -481,15 +440,12 @@ public class AsignaturaControllerTest {
         materia.setNombre("Programación I");
         
         Asignatura asignatura = new Asignatura(idAsignatura, materia, alumno, EstadoAsignatura.REGULAR);
-        
-        // La nota es >= 7, así que el estado debería cambiar automáticamente a APROBADO
+
         Asignatura asignaturaActualizada = new Asignatura(idAsignatura, materia, alumno, EstadoAsignatura.APROBADO, nuevaNota);
-        
-        // Mock del servicio
+
         when(asignaturaService.buscarPorId(idAsignatura)).thenReturn(Optional.of(asignatura));
         when(asignaturaService.guardar(any(AsignaturaDto.class))).thenReturn(asignaturaActualizada);
-        
-        // Ejecución y verificación
+
         mockMvc.perform(put("/asignatura/{id}/nota", idAsignatura)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(nuevaNota)))
@@ -497,22 +453,19 @@ public class AsignaturaControllerTest {
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.estado", is("APROBADO")))
                 .andExpect(jsonPath("$.nota", is(8.5)));
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).buscarPorId(idAsignatura);
         verify(asignaturaService, times(1)).guardar(any(AsignaturaDto.class));
     }
     
     @Test
     void actualizarNota_debeLanzarExcepcion_cuandoAsignaturaNoExiste() throws Exception {
-        // Preparación
+
         Long idInexistente = 999L;
         Double nuevaNota = 8.5;
-        
-        // Mock del servicio
+
         when(asignaturaService.buscarPorId(idInexistente)).thenReturn(Optional.empty());
-        
-        // Ejecución y verificación
+
         mockMvc.perform(put("/asignatura/{id}/nota", idInexistente)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(nuevaNota)))
@@ -520,8 +473,7 @@ public class AsignaturaControllerTest {
                 .andExpect(jsonPath("$.status", is(404)))
                 .andExpect(jsonPath("$.error", is("Not Found")))
                 .andExpect(jsonPath("$.mensaje").exists());
-        
-        // Verificar que el servicio fue llamado
+
         verify(asignaturaService, times(1)).buscarPorId(idInexistente);
         verify(asignaturaService, times(0)).guardar(any(AsignaturaDto.class));
     }

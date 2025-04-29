@@ -98,8 +98,7 @@ public class AlumnoServiceImplTest {
         alumnoEsperado.setNombre("Tomas");
         alumnoEsperado.setApellido("Aguirrezabala");
         alumnoEsperado.setDni("87654321");
-        
-        // Lista vacía de alumnos para simular que no hay DNIs duplicados
+
         List<Alumno> alumnosExistentes = new ArrayList<>();
         
         when(alumnoDao.buscarTodos()).thenReturn(alumnosExistentes);
@@ -129,7 +128,7 @@ public class AlumnoServiceImplTest {
         alumnoExistente.setId(1L);
         alumnoExistente.setNombre("Tomas2");
         alumnoExistente.setApellido("bbbb");
-        alumnoExistente.setDni("12345678"); // El mismo DNI
+        alumnoExistente.setDni("12345678");
         
         List<Alumno> alumnosExistentes = Arrays.asList(alumnoExistente);
         
@@ -156,7 +155,7 @@ public class AlumnoServiceImplTest {
         Long alumnoId = 1L;
         
         AlumnoDto alumnoDto = new AlumnoDto();
-        alumnoDto.setId(alumnoId); // ID existente -> actualización
+        alumnoDto.setId(alumnoId);
         alumnoDto.setNombre("Tomas Actualizado");
         alumnoDto.setApellido("Aguirrezabala Modificado");
         alumnoDto.setDni("12345678");
@@ -403,32 +402,27 @@ void inscribirEnMateria_debeFallar_cuandoMateriaNoExiste() {
 
 @Test
 void inscribirEnMateria_debeFallar_cuandoYaEstaInscrito() {
-    // Preparación
+
     Long alumnoId = 1L;
     Long materiaId = 2L;
-    
-    // Crear alumno simulado
+
     Alumno alumno = new Alumno();
     alumno.setId(alumnoId);
     alumno.setNombre("Tomas");
-    
-    // Crear materia simulada
+
     Materia materia = new Materia();
     materia.setId(materiaId);
     materia.setNombre("Programación I");
-    
-    // Crear asignatura existente (simula que ya está inscrito)
+
     Asignatura asignaturaExistente = new Asignatura();
     asignaturaExistente.setId(1L);
     asignaturaExistente.setAlumno(alumno);
     asignaturaExistente.setMateria(materia);
-    
-    // Configurar comportamiento de los mocks
+
     when(alumnoDao.buscarPorId(alumnoId)).thenReturn(Optional.of(alumno));
     when(materiaDao.buscarPorId(materiaId)).thenReturn(Optional.of(materia));
     when(asignaturaDao.buscarPorAlumnoIdYMateriaId(alumnoId, materiaId)).thenReturn(Optional.of(asignaturaExistente));
-    
-    // Ejecución y verificación
+
     EntidadDuplicadaException exception = assertThrows(
         EntidadDuplicadaException.class,
         () -> alumnoService.inscribirEnMateria(alumnoId, materiaId),
@@ -437,8 +431,7 @@ void inscribirEnMateria_debeFallar_cuandoYaEstaInscrito() {
     
     assertTrue(exception.getMessage().contains("ya está inscrito"),
             "El mensaje debe mencionar que ya está inscrito");
-    
-    // Verificar interacción con los mocks
+
     verify(alumnoDao).buscarPorId(alumnoId);
     verify(materiaDao).buscarPorId(materiaId);
     verify(asignaturaDao).buscarPorAlumnoIdYMateriaId(alumnoId, materiaId);

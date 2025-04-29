@@ -20,8 +20,7 @@ public class AsignaturaDto {
         this.estado = estado;
         this.nota = nota;
     }
-    
-    // Getters and setters
+
     public Long getId() {
         return id;
     }

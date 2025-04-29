@@ -21,8 +21,7 @@ public class AlumnoDaoMemoryImpl implements AlumnoDao {
     
     private final Map<Long, Alumno> alumnos = new HashMap<>();
     private final AtomicLong ultimoId = new AtomicLong(0);
-    
-    // Uso @Lazy para evitar una dependencia circular entre AlumnoDao y AsignaturaDao
+
     @Autowired
     @Lazy
     private AsignaturaDao asignaturaDao;
@@ -41,10 +40,9 @@ public class AlumnoDaoMemoryImpl implements AlumnoDao {
         Alumno alumno = alumnos.get(alumnoId);
         
         if (alumno != null) {
-            // Crear una copia del alumno para no modificar el original en el mapa
+
             Alumno alumnoCopia = clonarAlumno(alumno);
             
-            // Cargar las asignaturas asociadas a este alumno
             if (asignaturaDao != null) {
                 List<Asignatura> asignaturas = asignaturaDao.buscarPorAlumnoId(alumnoId);
                 alumnoCopia.setAsignaturas(asignaturas);
@@ -60,7 +58,6 @@ public class AlumnoDaoMemoryImpl implements AlumnoDao {
     public List<Alumno> buscarTodos() {
         List<Alumno> resultado = new ArrayList<>();
         
-        // Por cada alumno, cargar sus asignaturas
         for (Alumno alumno : alumnos.values()) {
             Alumno alumnoCopia = clonarAlumno(alumno);
             
@@ -80,7 +77,6 @@ public class AlumnoDaoMemoryImpl implements AlumnoDao {
         alumnos.remove(alumnoId);
     }
     
-    // Método auxiliar para clonar un alumno
     private Alumno clonarAlumno(Alumno original) {
         Alumno clon = new Alumno();
         clon.setId(original.getId());
@@ -89,7 +85,6 @@ public class AlumnoDaoMemoryImpl implements AlumnoDao {
         clon.setDni(original.getDni());
         clon.setCarrera(original.getCarrera());
         
-        // No copiamos las asignaturas porque las cargaremos desde el DAO
         return clon;
     }
 }

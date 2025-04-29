@@ -19,8 +19,7 @@ public class CarreraDto {
         this.cantidadCuatrimestres = cantidadCuatrimestres;
         this.materiasIds = materiasIds;
     }
-    
-    // Getters and setters
+
     public Long getId() {
         return id;
     }

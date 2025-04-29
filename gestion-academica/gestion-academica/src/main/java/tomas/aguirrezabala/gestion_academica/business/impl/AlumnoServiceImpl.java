@@ -97,8 +97,7 @@ public class AlumnoServiceImpl implements AlumnoService {
         if (asignaturaExistente.isPresent()) {
             throw new EntidadDuplicadaException("El alumno ya está inscrito en esta materia");
         }
-        
-        // AÑADIDO: Verificar correlatividades
+
         verificarCorrelatividades(alumno, materia);
         
         Asignatura asignatura = new Asignatura();

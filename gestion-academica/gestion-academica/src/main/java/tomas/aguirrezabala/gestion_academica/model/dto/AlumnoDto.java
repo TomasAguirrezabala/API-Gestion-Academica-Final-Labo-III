@@ -11,7 +11,6 @@ public class AlumnoDto {
     private Long carreraId;
     private List<Long> asignaturasIds = new ArrayList<>();
     
-    // Default constructor
     public AlumnoDto() {
     }
     
